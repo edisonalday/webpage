@@ -2,8 +2,8 @@
 echo "********* Set Server Environment ********"
 
 sudo mkdir -p /var/aws
-sudo chmod +x /var/coolpay/*
 sudo chmod +x /var/aws
+sudo chmod +x /var/web/*
 
 echo "********* Install Bash Profile ********"
 
@@ -20,7 +20,7 @@ echo "LC_ALL=en_US.utf-8" >> /etc/environment
 echo "********* Update MOTD ********"
 
 sudo rm -rf /etc/update-motd.d/*
-sudo cp -R /var/coolpay/common/00-dynamic /etc/update-motd.d/
+sudo cp -R /var/web/common/00-dynamic /etc/update-motd.d/
 sudo chmod +x /etc/update-motd.d/*
 
 echo "********* Install base application ********"
@@ -32,48 +32,45 @@ sudo yum update --security --exclude=kernel* -y
 
 echo "********* Set Default users ********"
 
-for file in /var/coolpay/credentials/keys/*
-do bname=$(basename $file) && sh /var/coolpay/credentials/access/add_user_ami.sh $bname
+for file in /var/web/credentials/keys/*
+do bname=$(basename $file) && sh /var/web/credentials/add_user_ami.sh $bname
 done
 
 echo "********* Set docker root credential ********"
 
 sudo mkdir -p /root/.docker/
-sudo cp -R /var/coolpay/common/config.json /root/.docker/
+sudo cp -R /var/web/common/config.json /root/.docker/
 sudo chmod +x /root/.docker/
-sudo groupadd deploy
-sudo usermod -g deploy backend-services
-sudo usermod -a -G docker backend-services
 
 echo "********* Set docker container storage ********"
 
 sudo mkdir -p /var/log/api
 sudo rm -rf /var/lib/docker
 sudo rm -rf /etc/sysconfig/docker
-sudo cp -R /var/coolpay/production/common/docker /etc/sysconfig/
+sudo cp -R /var/web/common/docker /etc/sysconfig/
 sudo mkdir -p /opt/docker/devicemapper/devicemapper
 sudo service docker start
 sudo chkconfig docker on
 
-echo "********* API Deploy script ********"
+#echo "********* WEB Deploy script ********"
 
-sudo mkdir -p /opt/touche/bin
-sudo chown -R gitlab. /opt/touche
+#sudo mkdir -p /opt/touche/bin
+#sudo chown -R gitlab. /opt/touche
 
-sudo docker pull touche/api:master
-sudo cp -R /var/coolpay/production/api/ami/deploy/deploy.sh /opt/touche/bin/
+#sudo docker pull touche/api:master
+#sudo cp -R /var/coolpay/production/api/ami/deploy/deploy.sh /opt/touche/bin/
 
 
-echo "********* Install Filebeat ********"
+#echo "********* Install Filebeat ********"
 
-cd ~
-sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.3.0-x86_64.rpm
-sudo rpm -vi filebeat-5.3.0-x86_64.rpm
-sudo rm -rf /etc/filebeat/*
-sudo cp -R /var/coolpay/production/common/filebeat* /etc/filebeat/
+#cd ~
+#sudo curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-5.3.0-x86_64.rpm
+#sudo rpm -vi filebeat-5.3.0-x86_64.rpm
+#sudo rm -rf /etc/filebeat/*
+#sudo cp -R /var/coolpay/production/common/filebeat* /etc/filebeat/
 
-sudo chkconfig filebeat on
-sudo service filebeat start
+#sudo chkconfig filebeat on
+#sudo service filebeat start
 
 
 echo "********* Install AWS CloudWatch monitoring ********"
@@ -86,8 +83,5 @@ sudo rm -rf CloudWatchMonitoringScripts-1.2.1.zip
 
 echo "********* Cleanup resources ********"
 
-cd /var/coolpay/
+cd /var/web/
 sudo find -maxdepth 1 ! -name credentials -exec rm -rf {} \;
-
-cd /var/coolpay/credentials/access/
-sudo find -maxdepth 1 ! -name add_user_ami.sh ! -name remove_user.sh -exec rm -rf {} \;
