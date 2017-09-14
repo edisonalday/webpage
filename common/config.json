@@ -1,0 +1,8 @@
+{
+  "auths": {
+    "https://index.docker.io/v1/": {
+      "auth": "dG91Y2hlOkZpbmdlcnByaW50UGF5bWVudA==",
+      "email": "development@gotouche.com"
+    }
+  }
+}
