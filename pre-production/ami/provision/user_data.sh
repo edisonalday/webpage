@@ -2,4 +2,4 @@
 sudo yum install -y git
 sudo yum update -y
 sudo git clone https://github.com/edisonalday/webpage.git /var/web
-sudo sh /var/webpage/ami/provision/install_web.sh
+sudo sh /var/web/ami/provision/install_web.sh
